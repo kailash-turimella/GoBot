@@ -41,6 +41,7 @@ window.addEventListener('DOMContentLoaded', () => {
   canvas.addEventListener('click', handleClick);
   document.getElementById('new-game-btn').addEventListener('click', newGame);
   document.getElementById('pass-btn').addEventListener('click', passTurn);
+  document.getElementById('ai-btn').addEventListener('click', aiMove);
   document.getElementById('play-again-btn').addEventListener('click', () => {
     hideOverlay();
     newGame();
@@ -94,6 +95,21 @@ async function passTurn() {
   const res = await fetch('/pass', { method: 'POST' });
   gameState  = await res.json();
   render();
+}
+
+async function aiMove() {
+  if (gameState?.game_over) return;
+  const btn = document.getElementById('ai-btn');
+  btn.disabled = true;
+  btn.textContent = 'Thinking…';
+  try {
+    const res = await fetch('/ai_move', { method: 'POST' });
+    gameState  = await res.json();
+    render();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'AI Move';
+  }
 }
 
 // -----------------------------------------------------------------------

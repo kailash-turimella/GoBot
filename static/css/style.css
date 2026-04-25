@@ -152,6 +152,19 @@ button {
 
 button:active { transform: scale(0.97); }
 
+#ai-btn {
+  background: #1a4a2a;
+  color: #80e0a0;
+  border: 1px solid #2a8a4a;
+}
+
+#ai-btn:hover { opacity: 0.85; }
+
+#ai-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 #pass-btn {
   background: #0f3460;
   color: #a0c4ff;
