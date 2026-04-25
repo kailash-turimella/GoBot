@@ -28,6 +28,7 @@ const STAR_POINTS = [[2,2],[2,6],[4,4],[6,2],[6,6]];
 
 let gameState = null;
 let canvas, ctx;
+let pollInterval = null;
 
 // -----------------------------------------------------------------------
 // Initialisation
@@ -46,6 +47,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   newGame();
+  startPolling();
 });
 
 // -----------------------------------------------------------------------
@@ -92,6 +94,26 @@ async function passTurn() {
   const res = await fetch('/pass', { method: 'POST' });
   gameState  = await res.json();
   render();
+}
+
+// -----------------------------------------------------------------------
+// Polling — sync board when the server state changes externally (e.g. AI via API)
+// -----------------------------------------------------------------------
+
+function startPolling() {
+  clearInterval(pollInterval);
+  pollInterval = setInterval(async () => {
+    if (!gameState || gameState.game_over) return;
+    try {
+      const res = await fetch('/state');
+      const fresh = await res.json();
+      const lastMoveChanged = JSON.stringify(fresh.last_move) !== JSON.stringify(gameState.last_move);
+      if (lastMoveChanged) {
+        gameState = fresh;
+        render();
+      }
+    } catch (_) {}
+  }, 1000);
 }
 
 // -----------------------------------------------------------------------
