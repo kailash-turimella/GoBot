@@ -1,0 +1,235 @@
+/* -----------------------------------------------------------------------
+   Global reset & typography
+----------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #1a1a2e;
+  color: #e0e0e0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* -----------------------------------------------------------------------
+   App layout
+----------------------------------------------------------------------- */
+#app {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  padding: 24px;
+}
+
+/* -----------------------------------------------------------------------
+   Board
+----------------------------------------------------------------------- */
+#board-wrap {
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+#board-canvas {
+  display: block;
+  /* Wooden tan background is drawn in JS so it covers the full canvas */
+  background: #dcb45b;
+}
+
+/* -----------------------------------------------------------------------
+   Sidebar
+----------------------------------------------------------------------- */
+#sidebar {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#sidebar h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #f0d080;
+  letter-spacing: 0.04em;
+}
+
+/* -----------------------------------------------------------------------
+   Turn indicator
+----------------------------------------------------------------------- */
+#turn-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #16213e;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #2a2a4a;
+}
+
+#turn-stone {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 2px solid #555;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+#turn-stone.white { background: #f5f5f5; border-color: #aaa; }
+
+#turn-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #c8c8e0;
+}
+
+/* -----------------------------------------------------------------------
+   Info blocks (captures, scores)
+----------------------------------------------------------------------- */
+.info-block {
+  background: #16213e;
+  border: 1px solid #2a2a4a;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.info-block h3 {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7878a0;
+  margin-bottom: 8px;
+}
+
+.capture-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  padding: 2px 0;
+}
+
+.stone-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.black-dot { background: #1a1a1a; border: 1px solid #555; }
+.white-dot { background: #f5f5f5; border: 1px solid #aaa; }
+
+.komi-note {
+  font-size: 0.72rem;
+  color: #7878a0;
+  margin-left: 2px;
+}
+
+/* -----------------------------------------------------------------------
+   Buttons
+----------------------------------------------------------------------- */
+#btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 0;
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+button:active { transform: scale(0.97); }
+
+#pass-btn {
+  background: #0f3460;
+  color: #a0c4ff;
+  border: 1px solid #1a5aaa;
+}
+
+#pass-btn:hover { opacity: 0.85; }
+
+#new-game-btn {
+  background: #e94560;
+  color: #fff;
+}
+
+#new-game-btn:hover { opacity: 0.85; }
+
+/* -----------------------------------------------------------------------
+   Error flash
+----------------------------------------------------------------------- */
+#error-flash {
+  background: #4a1020;
+  border: 1px solid #e94560;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #ffaaaa;
+  text-align: center;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* -----------------------------------------------------------------------
+   Game-over overlay
+----------------------------------------------------------------------- */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+#overlay-box {
+  background: #16213e;
+  border: 2px solid #f0d080;
+  border-radius: 14px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.8);
+  max-width: 340px;
+  width: 90%;
+}
+
+#winner-text {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #f0d080;
+  margin-bottom: 12px;
+}
+
+#final-scores-text {
+  font-size: 1rem;
+  color: #b0b0d0;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+#play-again-btn {
+  background: #e94560;
+  color: #fff;
+  font-size: 1rem;
+  padding: 12px 32px;
+  width: auto;
+}
+
+/* -----------------------------------------------------------------------
+   Utility
+----------------------------------------------------------------------- */
+.hidden { display: none !important; }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9×9 Go</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <div id="app">
+
+    <div id="board-wrap">
+      <canvas id="board-canvas" width="540" height="540"></canvas>
+    </div>
+
+    <div id="sidebar">
+      <h1>9×9 Go</h1>
+
+      <div id="turn-box">
+        <div id="turn-stone"></div>
+        <span id="turn-label">Black's turn</span>
+      </div>
+
+      <div class="info-block">
+        <h3>Captures</h3>
+        <div class="capture-row">
+          <span class="stone-dot black-dot"></span>
+          Black: <strong id="black-captures">0</strong>
+        </div>
+        <div class="capture-row">
+          <span class="stone-dot white-dot"></span>
+          White: <strong id="white-captures">0</strong>
+        </div>
+      </div>
+
+      <div id="scores-block" class="info-block hidden">
+        <h3>Final Scores</h3>
+        <div class="capture-row">
+          <span class="stone-dot black-dot"></span>
+          Black: <strong id="score-black">—</strong>
+        </div>
+        <div class="capture-row">
+          <span class="stone-dot white-dot"></span>
+          White: <strong id="score-white">—</strong>
+          <span class="komi-note">(incl. 2.5 komi)</span>
+        </div>
+      </div>
+
+      <div id="btn-group">
+        <button id="pass-btn">Pass</button>
+        <button id="new-game-btn">New Game</button>
+      </div>
+
+      <div id="error-flash" class="hidden"></div>
+    </div>
+
+  </div>
+
+  <!-- Game-over overlay -->
+  <div id="overlay" class="hidden">
+    <div id="overlay-box">
+      <h2 id="winner-text"></h2>
+      <p id="final-scores-text"></p>
+      <button id="play-again-btn">Play Again</button>
+    </div>
+  </div>
+
+  <script src="/static/js/game.js"></script>
+</body>
+</html>
