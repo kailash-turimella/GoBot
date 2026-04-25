@@ -1,5 +1,29 @@
 """
 app.py — Flask server and REST API for the 9x9 Go game.
+
+All game state lives in a single module-level Board instance.  This is
+intentionally simple: Go is a two-player turn-based game with no concurrent
+requests in the intended single-session use case.  A multi-session deployment
+would move state into a server-side session or database.
+
+Key design decisions:
+  - Every route returns JSON.  Error responses carry an "error" key and an
+    appropriate HTTP status code so the frontend can distinguish success from
+    failure without inspecting body text.
+  - The engine (board, rules, scoring) is imported directly; Flask knows
+    nothing about Go rules.  This means all engine logic can be tested with
+    pytest without starting the server.
+  - /pass increments consecutive_passes on the Board and switches the turn.
+    When two consecutive passes occur the scoring module determines the winner
+    and the result is written back to the Board so every subsequent /state
+    call reflects game over.
+  - /ai_move runs MCTS via AIPlayer and applies the chosen move.
+
+Known edge cases or future work:
+  - concurrent players would require per-session Board instances (Flask
+    sessions or a keyed store).
+  - The board is not persisted across server restarts; add a /save and /load
+    route (or SQLite serialization) if persistence is needed.
 """
 
 from flask import Flask, jsonify, request, render_template
@@ -7,9 +31,11 @@ from flask import Flask, jsonify, request, render_template
 from engine.board import Board
 from engine.rules import is_legal, get_legal_moves
 from engine.scoring import get_winner
+from engine.ai import AIPlayer
 
 app = Flask(__name__)
 board = Board()
+_ai = AIPlayer(num_simulations=800)
 
 
 @app.route("/")
@@ -73,7 +99,24 @@ def legal_moves():
 
 @app.route("/ai_move", methods=["POST"])
 def ai_move():
-    return jsonify({"error": "AI not yet implemented"}), 501
+    if board.game_over:
+        return jsonify({"error": "Game is already over"}), 400
+
+    move = _ai.select_move(board, board.turn)
+
+    if move is None:
+        board.consecutive_passes += 1
+        board.last_move = None
+        board.turn = 3 - board.turn
+        if board.consecutive_passes >= 2:
+            result = get_winner(board)
+            board.game_over = True
+            board.winner    = result["winner"]
+            board.scores    = result["scores"]
+    else:
+        board.place_stone(*move)
+
+    return jsonify(board.get_board_state())
 
 
 if __name__ == "__main__":
