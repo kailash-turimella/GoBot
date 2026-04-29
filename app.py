@@ -31,11 +31,27 @@ from flask import Flask, jsonify, request, render_template
 from engine.board import Board
 from engine.rules import is_legal, get_legal_moves
 from engine.scoring import get_winner
-from engine.ai import AIPlayer
+from engine.ai import AIPlayer, ModelNotFoundError
+
+MAX_MOVES = 150  # 9×9 games rarely exceed 80 moves; 150 catches runaway loops
 
 app = Flask(__name__)
 board = Board()
-_ai = AIPlayer(num_simulations=800)
+
+try:
+    _ai = AIPlayer()
+except ModelNotFoundError as _e:
+    _ai = None
+    print(f"[warning] AI disabled: {_e}")
+
+
+def _check_move_limit():
+    """End the game by scoring if the move cap is reached."""
+    if not board.game_over and board.move_count >= MAX_MOVES:
+        result = get_winner(board)
+        board.game_over = True
+        board.winner = result["winner"]
+        board.scores = result["scores"]
 
 
 @app.route("/")
@@ -65,6 +81,7 @@ def move():
         return jsonify({"error": "Illegal move"}), 400
 
     board.place_stone(int(row), int(col))
+    _check_move_limit()
     return jsonify(board.get_board_state())
 
 
@@ -78,11 +95,13 @@ def pass_turn():
     if board.game_over:
         return jsonify({"error": "Game is already over"}), 400
 
+    passing_player = board.turn
     board.consecutive_passes += 1
+    board.player_passes[passing_player] += 1
     board.last_move = None
     board.turn = 3 - board.turn
 
-    if board.consecutive_passes >= 2:
+    if board.consecutive_passes >= 2 or board.player_passes[passing_player] >= 3:
         result = get_winner(board)
         board.game_over = True
         board.winner = result["winner"]
@@ -99,22 +118,28 @@ def legal_moves():
 
 @app.route("/ai_move", methods=["POST"])
 def ai_move():
+    if _ai is None:
+        return jsonify({"error": "No trained model found. Train the network first and save it to models/v1.pth."}), 503
+
     if board.game_over:
         return jsonify({"error": "Game is already over"}), 400
 
     move = _ai.select_move(board, board.turn)
 
     if move is None:
+        passing_player = board.turn
         board.consecutive_passes += 1
+        board.player_passes[passing_player] += 1
         board.last_move = None
         board.turn = 3 - board.turn
-        if board.consecutive_passes >= 2:
+        if board.consecutive_passes >= 2 or board.player_passes[passing_player] >= 3:
             result = get_winner(board)
             board.game_over = True
             board.winner    = result["winner"]
             board.scores    = result["scores"]
     else:
         board.place_stone(*move)
+        _check_move_limit()
 
     return jsonify(board.get_board_state())
 

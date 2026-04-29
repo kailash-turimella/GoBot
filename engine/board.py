@@ -58,6 +58,8 @@ class Board:
         self.previous_state: Optional[tuple] = None
         self.last_move: Optional[tuple[int, int]] = None
         self.consecutive_passes: int = 0
+        self.move_count: int = 0
+        self.player_passes: dict[int, int] = {1: 0, 2: 0}
         self.game_over: bool = False
         self.winner: Optional[str] = None
         self.scores: Optional[dict] = None
@@ -96,6 +98,8 @@ class Board:
         self.captured[capturer] += captured_count
         self.last_move = (row, col)
         self.consecutive_passes = 0
+        self.player_passes[self.turn] = 0   # reset this player's pass streak on a real move
+        self.move_count += 1
         self.turn = opponent
         return True
 
