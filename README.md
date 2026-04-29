@@ -1,6 +1,6 @@
-# 9×9 Go — Python/Flask + MCTS AI
+# 9×9 Go — Python/Flask + AlphaGo Zero-Style Neural Network AI
 
-A fully playable 9×9 Go game with all rules implemented from scratch and a custom Monte Carlo Tree Search (MCTS) AI engine. Play in the browser against another human or let the AI pick moves for either side.
+A fully playable 9×9 Go game with all rules implemented from scratch and a neural network AI trained via supervised learning on real games followed by AlphaGo Zero-style self-play. Play in the browser against another human or let the AI pick moves.
 
 ## Overview
 
@@ -8,24 +8,34 @@ There are two core components:
 
 **Game engine** — every rule of Go is implemented from scratch in pure Python with no external Go libraries. This includes stone capture (BFS group detection), the Ko rule (board-state snapshot comparison), suicide prevention (including the capture-suicide edge case where a move that looks suicidal is legal because it captures first), and Chinese scoring with territory flood-fill and 2.5 komi. A REST API built with Flask exposes the engine to the browser frontend, which renders the board on an HTML canvas.
 
-**MCTS AI** — `engine/ai.py` implements a full Monte Carlo Tree Search agent. Each search iteration runs four phases: selection via UCB1 (Upper Confidence Bound), expansion of one new tree node, a random rollout with capture-biased move selection, and backpropagation of the result. The rollout is heavily optimised to avoid Python deep copies — legality is checked with an O(16) direct-neighbour scan instead of a full BFS group traversal, cutting per-move overhead by ~300×. At 800 simulations the AI responds in ~3 seconds and plays at a beginner level; increasing `num_simulations` trades time for stronger play.
+**Neural network AI** — `engine/ai.py` loads a trained ResNet policy+value network (`models/model`) and picks moves in a single forward pass: the board is encoded as feature planes, the policy head outputs probabilities over all 81 intersections, illegal moves are masked out, and the highest-probability legal move is played. The network is trained in two stages — supervised pre-training on human/computer games to learn basic shape and joseki, followed by AlphaGo Zero-style self-play where the network improves by playing against itself using PUCT Monte Carlo Tree Search. Each self-play iteration the network generates training data, trains on it, and is evaluated against the previous best checkpoint before being promoted.
 
 ## Project structure
 
 ```
-go_engine/
-├── app.py              Flask server + REST API
+GoBot/
+├── app.py                  Flask server + REST API
 ├── engine/
-│   ├── board.py        Board state, stone placement, capture logic
-│   ├── rules.py        Ko, suicide, legal-move validation
-│   ├── scoring.py      Chinese scoring, territory flood-fill
-│   └── ai.py           AI stub (NotImplementedError — MCTS interface)
+│   ├── board.py            Board state, stone placement, capture logic
+│   ├── rules.py            Ko, suicide, legal-move validation
+│   ├── scoring.py          Chinese scoring, territory flood-fill
+│   ├── network.py          ResNet architecture (policy + value heads)
+│   └── ai.py               Loads trained model, selects moves
+├── training/
+│   ├── supervised.py       Pre-train on SGF game dataset
+│   ├── self_play.py        Generate self-play games → replay buffer
+│   ├── train.py            Fine-tune on replay buffer
+│   └── eval.py             Pit new checkpoint vs. current best
+├── models/            Saved model weights (.pth files)
+├── data/
+│   ├── Games/              SGF game archives for supervised training
+│   └── replay_buffer.npz   Self-play training data
 ├── static/
-│   ├── js/game.js      Canvas rendering + click handling
-│   └── css/style.css   Board and stone styling
+│   ├── js/game.js          Canvas rendering + click handling
+│   └── css/style.css       Board and stone styling
 ├── templates/
-│   └── index.html      Single-page shell
-└── tests/              pytest test suite
+│   └── index.html          Single-page shell
+└── tests/                  pytest test suite
 ```
 
 ## Setup
@@ -33,7 +43,6 @@ go_engine/
 ### 1 — Create and activate the virtual environment
 
 ```bash
-cd go_engine
 python3 -m venv venv
 source venv/bin/activate        # macOS / Linux
 # venv\Scripts\activate         # Windows
@@ -53,6 +62,58 @@ python app.py
 
 Open **http://127.0.0.1:5000** in your browser.
 
+The AI move button requires a trained model at `models/model`. Without it the `/ai_move` route returns a `503` with a clear error message.
+
+## Training the AI
+
+### Step 1 — Supervised pre-training
+
+Get 9×9 SGF game files (CGOS archives work well) and place them under `data/Games/`. Then run:
+
+```bash
+python -m training.supervised --max-games 50000 --epochs 20 --device mps --promote
+```
+
+`--promote` copies the result to `models/best_model.pth` automatically.
+Use `--device mps` on Apple Silicon, `--device cuda` on NVIDIA GPU, `--device cpu` otherwise.
+
+### Step 2 — Self-play loop
+
+```bash
+# Generate self-play games using the current best model
+python -m training.self_play --games 200 --sims 400 --device mps
+
+# Fine-tune on the new data
+python -m training.train --epochs 10 --model models/best_model.pth --device mps
+
+# Promote if the new checkpoint wins >55% of evaluation games
+python -m training.eval --candidate models/model_v10.pth
+```
+
+Repeat from `self_play` with the promoted `best_model.pth`. Each iteration the model improves.
+
+### Run overnight (macOS)
+
+```bash
+nohup python -m training.supervised --max-games 50000 --epochs 20 --device mps --promote \
+    > training.log 2>&1 &
+
+tail -f training.log   # check progress
+```
+
+## Network architecture
+
+`engine/network.py` defines `GoNetwork` — a dual-head ResNet:
+
+| Component | Detail |
+|---|---|
+| Input | 17 × 9 × 9 feature planes |
+| Trunk | 5 residual blocks, 64 filters, 3×3 convolutions |
+| Policy head | Conv → flatten → linear → 81 logits (one per intersection) |
+| Value head | Conv → flatten → linear → tanh → scalar ∈ [−1, 1] |
+
+Input planes: current player's stones, opponent's stones, color-to-move, plus 14 history planes (AlphaGo Zero style).
+
 ## Running tests
 
 ```bash
@@ -69,7 +130,7 @@ pytest tests/ -v
 | GET | `/state` | Current board state as JSON |
 | POST | `/pass` | Current player passes; two consecutive passes end the game |
 | GET | `/legal_moves` | All legal moves for the current player |
-| POST | `/ai_move` | MCTS AI picks and plays a move for the current player |
+| POST | `/ai_move` | Neural network picks and plays a move (503 if no model) |
 
 ### State response shape
 
@@ -93,14 +154,3 @@ pytest tests/ -v
 - **Suicide**: placing a stone that leaves your own group with zero liberties is illegal, *unless* it simultaneously captures an opponent group (which restores liberties).
 - **Ko**: you may not play a move that recreates the board state that existed immediately before your opponent's last move (simple Ko).
 - **Scoring**: Chinese rules — stones on board + territory (empty intersections bordered exclusively by one color). White receives 2.5 komi.
-
-## AI tuning
-
-`AIPlayer` in `engine/ai.py` accepts two parameters:
-
-| Parameter | Default | Effect |
-|---|---|---|
-| `num_simulations` | `800` | Rollout budget per move — higher = stronger, slower |
-| `exploration_c` | `1.41` | UCB1 exploration constant (√2 is theoretically optimal) |
-
-The server instantiates the AI once at startup (`app.py`). To change strength, edit the `_ai = AIPlayer(num_simulations=800)` line and restart.
