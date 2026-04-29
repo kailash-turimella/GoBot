@@ -21,10 +21,10 @@ import random
 from pathlib import Path
 from typing import Optional
 
-# from engine.network import GoNetwork, load_model
-# from engine.board import Board
-# from engine.rules import get_legal_moves
-# from engine.scoring import get_winner
+# from go_engine.network import GoNetwork, load_model
+# from go_engine.board import Board
+# from go_engine.rules import get_legal_moves
+# from go_engine.scoring import get_winner
 
 NUM_EVAL_GAMES  = 20
 WIN_THRESHOLD   = 0.55   # new model must win >55% to replace champion

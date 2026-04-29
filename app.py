@@ -28,14 +28,14 @@ Known edge cases or future work:
 
 from flask import Flask, jsonify, request, render_template
 
-from engine.board import Board
-from engine.rules import is_legal, get_legal_moves
-from engine.scoring import get_winner
-from engine.ai import AIPlayer, ModelNotFoundError
+from go_engine.board import Board
+from go_engine.rules import is_legal, get_legal_moves
+from go_engine.scoring import get_winner
+from AI.ai import AIPlayer, ModelNotFoundError
 
 MAX_MOVES = 150  # 9×9 games rarely exceed 80 moves; 150 catches runaway loops
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='frontend/templates', static_folder='frontend/static')
 board = Board()
 
 try:

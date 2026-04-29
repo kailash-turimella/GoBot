@@ -16,10 +16,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from engine.board import Board, SIZE
-from engine.rules import is_legal
+from go_engine.board import Board, SIZE
+from go_engine.rules import is_legal
 
-MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "v1.pth"
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "v1.pth"
 
 
 class ModelNotFoundError(FileNotFoundError):
@@ -29,7 +29,7 @@ class ModelNotFoundError(FileNotFoundError):
 def _load_model(path: Path):
     try:
         import torch
-        from engine.network import GoNetwork
+        from go_engine.network import GoNetwork
     except ImportError:
         raise ModelNotFoundError("PyTorch is not installed. Run: pip install torch")
 
@@ -47,7 +47,7 @@ def _load_model(path: Path):
 def _encode(board: Board, color: int):
     """Encode the board into a (1, NUM_INPUT_PLANES, 9, 9) float32 tensor."""
     import torch
-    from engine.network import NUM_INPUT_PLANES
+    from go_engine.network import NUM_INPUT_PLANES
 
     planes = torch.zeros(NUM_INPUT_PLANES, SIZE, SIZE, dtype=torch.float32)
     opponent = 3 - color

@@ -29,10 +29,10 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from engine.board import Board, SIZE
-from engine.network import GoNetwork, load_model, NUM_INPUT_PLANES
-from engine.rules import is_legal
-from engine.scoring import get_winner
+from go_engine.board import Board, SIZE
+from go_engine.network import GoNetwork, load_model, NUM_INPUT_PLANES
+from go_engine.rules import is_legal
+from go_engine.scoring import get_winner
 
 MAX_GAME_MOVES  = 200
 TEMP_THRESHOLD  = 30    # use temperature=1 for first 30 moves, then argmax

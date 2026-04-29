@@ -6,8 +6,8 @@ get_legal_moves filtering.
 """
 
 import pytest
-from engine.board import Board, SIZE
-from engine.rules import is_legal, is_in_bounds, is_suicide, is_ko, get_legal_moves
+from go_engine.board import Board, SIZE
+from go_engine.rules import is_legal, is_in_bounds, is_suicide, is_ko, get_legal_moves
 
 
 # -----------------------------------------------------------------------

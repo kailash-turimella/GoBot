@@ -6,7 +6,7 @@ capture counts.
 """
 
 import pytest
-from engine.board import Board, SIZE
+from go_engine.board import Board, SIZE
 
 
 # -----------------------------------------------------------------------

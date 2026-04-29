@@ -5,8 +5,8 @@ Covers territory flood-fill, komi application, and winner determination.
 """
 
 import pytest
-from engine.board import Board, SIZE
-from engine.scoring import calculate_score, find_territory, get_winner, KOMI
+from go_engine.board import Board, SIZE
+from go_engine.scoring import calculate_score, find_territory, get_winner, KOMI
 
 
 # -----------------------------------------------------------------------

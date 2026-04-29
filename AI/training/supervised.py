@@ -27,9 +27,9 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 
-from engine.board import Board
-from engine.network import GoNetwork, NUM_INPUT_PLANES, save_model
-from engine.rules import is_legal
+from go_engine.board import Board
+from go_engine.network import GoNetwork, NUM_INPUT_PLANES, save_model
+from go_engine.rules import is_legal
 
 SIZE = 9
 
