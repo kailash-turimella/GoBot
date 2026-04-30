@@ -1,0 +1,26 @@
+(;GM[1]FF[4]CA[UTF-8]
+RU[Chinese]SZ[9]KM[7.0]TM[300]
+PW[khd-rpi5-H]PB[Aya783a_50]WR[3015]BR[1712]DT[2024-08-03]PC[(CGOS) 9x9 Computer Go Server]RE[W+Resign  ]GN[1518335]
+;B[ec]BL[294];W[ef]WL[297]CC[{"moves":[{"move":"E4","visits":159,"winrate":0.6966310427904878},{"move":"F4","visits":124,"winrate":0.7755016403332833}\],"score":3.008115251916599,"visits":434,"winrate":0.7340978535144613}]
+;B[ee]BL[290];W[df]WL[295]CC[{"moves":[{"move":"D4","visits":440,"winrate":0.6649946387100499},{"move":"F5","visits":360,"winrate":0.7101039807486813}\],"score":2.3690933040894437,"visits":1291,"winrate":0.6799345757611691}]
+;B[ff]BL[286];W[fg]WL[294]CC[{"moves":[{"move":"F3","visits":1378,"winrate":0.6333745757512459},{"move":"D5","visits":36,"winrate":0.6089247428980242}\],"score":1.839833333474109,"visits":1420,"winrate":0.6321944630851056}]
+;B[gg]BL[282];W[de]WL[288]CC[{"moves":[{"move":"D5","visits":1045,"winrate":0.7538878754835463},{"move":"F5","visits":8,"winrate":0.36560509260743856}\],"score":2.2698835717081396,"visits":1068,"winrate":0.7473715864536834}]
+
+;B[ed]BL[272];W[gf]WL[285]CC[{"moves":[{"move":"G4","visits":433,"winrate":0.8199749585008786},{"move":"C7","visits":32,"winrate":0.8006355506367981}\],"score":4.340725678492424,"visits":482,"winrate":0.8145881498443095}]
+;B[fe]BL[268];W[hf]WL[283]CC[{"moves":[{"move":"H4","visits":1191,"winrate":0.8563518602112472},{"move":"E2","visits":292,"winrate":0.8332916775539722}\],"score":5.526367806172812,"visits":1663,"winrate":0.8320748946574582}]
+;B[eg]BL[264];W[fh]WL[282]CC[{"moves":[{"move":"F2","visits":1199,"winrate":0.8543435251783017},{"move":"PASS","visits":0,"winrate":0}\],"score":6.3132739603464945,"visits":1200,"winrate":0.8544047675669815}]
+;B[hg]BL[260];W[hh]WL[278]CC[{"moves":[{"move":"H2","visits":385,"winrate":0.8852996965468098},{"move":"G2","visits":199,"winrate":0.9301446832519904}\],"score":7.247953694557605,"visits":814,"winrate":0.8982899806361259}]
+
+;B[he]BL[257];W[cd]WL[275]CC[{"moves":[{"move":"C6","visits":338,"winrate":0.9735548650548302},{"move":"C7","visits":66,"winrate":0.9566860655040452}\],"score":10.677593131398167,"visits":523,"winrate":0.9663467960820371}]
+;B[cc]BL[249];W[bc]WL[272]CC[{"moves":[{"move":"B7","visits":687,"winrate":0.9744636943506881},{"move":"G2","visits":65,"winrate":0.9755797308224898}\],"score":11.595438615954908,"visits":785,"winrate":0.9744339427750581}]
+;B[bb]BL[246];W[cb]WL[269]CC[{"moves":[{"move":"C8","visits":584,"winrate":0.9743509311547937},{"move":"G2","visits":121,"winrate":0.9809456827226749}\],"score":9.997887767679627,"visits":954,"winrate":0.9760156749655928}]
+;B[dc]BL[236];W[bd]WL[267]CC[{"moves":[{"move":"B6","visits":1815,"winrate":0.972878302756752},{"move":"B5","visits":314,"winrate":0.9791010805186193}\],"score":11.603375364447091,"visits":2534,"winrate":0.9737117206551685}]
+
+;B[if]BL[233];W[gh]WL[267]CC[{"moves":[{"move":"G2","visits":317,"winrate":0.9848657129126768},{"move":"PASS","visits":0,"winrate":0}\],"score":4.16304000874139,"visits":318,"winrate":0.9847973434242812}]
+;B[eh]BL[229];W[ig]WL[263]CC[{"moves":[{"move":"J3","visits":457,"winrate":0.9806369239835301},{"move":"D3","visits":99,"winrate":0.9882670291746505}\],"score":15.731705035678615,"visits":732,"winrate":0.9808456301663702}]
+;B[cg]BL[221];W[dg]WL[261]CC[{"moves":[{"move":"D3","visits":959,"winrate":0.9812782198079979},{"move":"B4","visits":597,"winrate":0.9868010345415854}\],"score":18.435572060606177,"visits":2236,"winrate":0.9827594452705035}]
+;B[dh]BL[217];W[bf]WL[258]CC[{"moves":[{"move":"B4","visits":1067,"winrate":0.985594032770468},{"move":"B3","visits":582,"winrate":0.9743374848587893}\],"score":14.542453692701564,"visits":2133,"winrate":0.9820554240559133}]
+
+;B[bg]BL[214];W[ab]WL[253]CC[{"moves":[{"move":"A8","visits":1279,"winrate":0.9855307130735773},{"move":"E1","visits":327,"winrate":0.9855221077936505}\],"score":14.616654952014501,"visits":2096,"winrate":0.9856085947231311}]
+;B[]BL[38];C[Resignation]
+)

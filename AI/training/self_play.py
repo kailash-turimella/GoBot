@@ -362,28 +362,110 @@ def save_buffer(examples: list, path: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Fast self-play (no MCTS — one network call per move)
+# ---------------------------------------------------------------------------
+
+def play_fast_game(
+    model,
+    device:      str   = "cpu",
+    temperature: float = 1.0,
+) -> list[tuple[np.ndarray, np.ndarray, float]]:
+    """
+    Generate one game using direct policy sampling — no MCTS, no deep copies.
+    ~50× faster than MCTS self-play; weaker training signal but sufficient for
+    early iterations where the network is still far from optimal.
+
+    pi is a soft distribution over moves (temperature-scaled softmax), not a
+    visit-count distribution, so train.py's cross-entropy loss still applies.
+    """
+    import torch
+    import torch.nn.functional as F
+
+    board   = Board()
+    history: deque = deque(maxlen=8)
+    history.appendleft(([row[:] for row in board.grid], board.turn))
+
+    records: list[tuple[np.ndarray, np.ndarray, int]] = []
+    move_num = 0
+
+    while not board.game_over and move_num < MAX_GAME_MOVES:
+        color  = board.turn
+        planes = encode_board(board, color, history)
+
+        x = torch.from_numpy(planes).unsqueeze(0).to(device)
+        with torch.no_grad():
+            logits, _ = model(x)
+        logits = logits.squeeze(0)
+
+        # Mask illegal moves
+        for r in range(SIZE):
+            for c in range(SIZE):
+                if not is_legal(board, r, c, color):
+                    logits[r * SIZE + c] = float("-inf")
+
+        if logits.max().item() == float("-inf"):
+            board.consecutive_passes += 1
+            board.last_move = None
+            board.turn = 3 - board.turn
+            if board.consecutive_passes >= 2:
+                board.game_over = True
+            move_num += 1
+            continue
+
+        temp = temperature if move_num < TEMP_THRESHOLD else 0.1
+        probs = F.softmax(logits / max(temp, 1e-6), dim=0).cpu().numpy()
+        probs = np.clip(probs, 0, None)
+        probs /= probs.sum()
+
+        move_idx = int(np.random.choice(SIZE * SIZE, p=probs))
+        records.append((planes, probs, color))
+
+        r, c = divmod(move_idx, SIZE)
+        board.place_stone(r, c)
+        history.appendleft(([row[:] for row in board.grid], board.turn))
+        move_num += 1
+
+    result       = get_winner(board)
+    winner_color = 1 if result["winner"] == "black" else 2
+    return [
+        (planes, pi, 1.0 if color == winner_color else -1.0)
+        for planes, pi, color in records
+    ]
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate self-play games")
-    parser.add_argument("--games",  type=int, default=100)
-    parser.add_argument("--sims",   type=int, default=400)
-    parser.add_argument("--model",  type=str, default="models/best_model.pth")
-    parser.add_argument("--buffer", type=str, default="data/replay_buffer.npz")
-    parser.add_argument("--device", type=str, default="cpu")
+    parser.add_argument("--games",  type=int,   default=100)
+    parser.add_argument("--sims",   type=int,   default=400,
+                        help="MCTS simulations per move (0 = fast policy-only mode)")
+    parser.add_argument("--model",  type=str,   default="AI/models/v1.pth")
+    parser.add_argument("--buffer", type=str,   default="data/replay_buffer.npz")
+    parser.add_argument("--device", type=str,   default="cpu")
     args = parser.parse_args()
 
     print(f"Loading model from {args.model}")
     model = load_model(args.model, device=args.device)
-    mcts  = _MCTS(model, device=args.device, num_sims=args.sims)
-    game  = SelfPlayGame(mcts)
 
     all_examples: list = []
-    for i in range(1, args.games + 1):
-        examples = game.run()
-        all_examples.extend(examples)
-        print(f"game {i}/{args.games}: {len(examples)} positions")
+
+    if args.sims == 0:
+        print("Mode: fast policy-only (no MCTS)")
+        for i in range(1, args.games + 1):
+            examples = play_fast_game(model, device=args.device)
+            all_examples.extend(examples)
+            print(f"game {i}/{args.games}: {len(examples)} positions")
+    else:
+        print(f"Mode: MCTS ({args.sims} sims/move)")
+        mcts = _MCTS(model, device=args.device, num_sims=args.sims)
+        game = SelfPlayGame(mcts)
+        for i in range(1, args.games + 1):
+            examples = game.run()
+            all_examples.extend(examples)
+            print(f"game {i}/{args.games}: {len(examples)} positions")
 
     save_buffer(all_examples, args.buffer)
 

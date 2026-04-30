@@ -129,7 +129,8 @@ class GoNetwork(nn.Module):
 def load_model(path: str, device: str = "cpu") -> GoNetwork:
     """Load a GoNetwork checkpoint from disk."""
     model = GoNetwork()
-    model.load_state_dict(torch.load(path, map_location=device))
+    model.load_state_dict(torch.load(path, map_location="cpu"))
+    model.to(device)
     model.eval()
     return model
 

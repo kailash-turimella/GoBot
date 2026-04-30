@@ -161,10 +161,13 @@ class GoSupervisedDataset(Dataset):
 def load_sgf_dataset(
     games_dir: str,
     max_games: Optional[int] = None,
+    offset:    int = 0,
 ) -> GoSupervisedDataset:
     files = sorted(Path(games_dir).glob("**/*.sgf"))
     if not files:
         raise FileNotFoundError(f"No .sgf files found in {games_dir}")
+    if offset:
+        files = files[offset:]
     if max_games is not None:
         files = files[:max_games]
 
@@ -244,22 +247,32 @@ def train_supervised(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Supervised pre-training on SGF games")
-    parser.add_argument("--games",    type=str,   default="data/Games/")
-    parser.add_argument("--max-games", type=int, default=None,
-                        help="Cap number of SGF files loaded (e.g. 50000)")
-    parser.add_argument("--epochs",  type=int,   default=20)
-    parser.add_argument("--batch",   type=int,   default=512)
-    parser.add_argument("--lr",      type=float, default=1e-3)
-    parser.add_argument("--device",  type=str,   default="cpu")
-    parser.add_argument("--out",     type=str,   default="models/supervised.pth")
+    parser.add_argument("--games",     type=str,   default="data/Games/")
+    parser.add_argument("--max-games", type=int,   default=None,
+                        help="Number of SGF files to load in this chunk")
+    parser.add_argument("--offset",    type=int,   default=0,
+                        help="Skip the first N SGF files (for chunked training)")
+    parser.add_argument("--resume",    type=str,   default=None,
+                        help="Start from this checkpoint instead of a fresh network")
+    parser.add_argument("--epochs",    type=int,   default=5)
+    parser.add_argument("--batch",     type=int,   default=512)
+    parser.add_argument("--lr",        type=float, default=1e-3)
+    parser.add_argument("--device",    type=str,   default="cpu")
+    parser.add_argument("--out",       type=str,   default="models/supervised.pth")
     parser.add_argument(
         "--promote", action="store_true",
         help="Copy checkpoint to models/best_model.pth after training"
     )
     args = parser.parse_args()
 
-    dataset = load_sgf_dataset(args.games, max_games=args.max_games)
-    model   = GoNetwork()
+    dataset = load_sgf_dataset(args.games, max_games=args.max_games, offset=args.offset)
+    if args.resume:
+        import torch
+        model = GoNetwork()
+        model.load_state_dict(torch.load(args.resume, map_location="cpu"))
+        print(f"Resumed from {args.resume}")
+    else:
+        model = GoNetwork()
     train_supervised(
         model, dataset,
         epochs=args.epochs, batch_size=args.batch, lr=args.lr,
