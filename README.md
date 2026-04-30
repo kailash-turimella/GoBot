@@ -137,7 +137,7 @@ python -m AI.training.supervised --games AI/training/data/Games/ --max-games 500
 bash train_500k.sh
 ```
 
-### Self-play loop
+### Self-play loop 
 
 ```bash
 # Generate self-play games
