@@ -19,7 +19,7 @@ from typing import Optional
 from go_engine.board import Board, SIZE
 from go_engine.rules import is_legal
 
-MODEL_PATH = Path(__file__).resolve().parent / "models" / "v1.pth"
+MODEL_PATH = Path(__file__).resolve().parent / "models" / "v3.pth"
 
 
 class ModelNotFoundError(FileNotFoundError):
