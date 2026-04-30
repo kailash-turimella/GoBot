@@ -1,6 +1,6 @@
-# 9×9 Go — Python/Flask + AlphaGo Zero-Style Neural Network AI
+# 9×9 Go — Python/Flask + Neural Network AI
 
-A fully playable 9×9 Go game with all rules implemented from scratch and a neural network AI trained via supervised learning on real games followed by AlphaGo Zero-style self-play. Play in the browser against another human or let the AI pick moves.
+A fully playable 9×9 Go game with all rules implemented from scratch and a neural network AI trained via supervised learning on real games followed by self-play, using a similar strategy to AlphaGo. Play in the browser against another human or let the AI pick moves.
 
 ---
 
@@ -10,7 +10,7 @@ There are two core components:
 
 **Game engine** — every rule of Go is implemented from scratch in pure Python with no external Go libraries. This includes stone capture (BFS group detection), the Ko rule (board-state snapshot comparison), suicide prevention (including the capture-suicide edge case where a move that looks suicidal is legal because it captures first), and Chinese scoring with territory flood-fill and 2.5 komi.
 
-**Neural network AI** — a ResNet policy+value network trained in two stages: supervised pre-training on 500,000 real computer-vs-computer games from CGOS, followed by AlphaGo Zero-style self-play where the network improves by playing against itself. At game time the AI encodes the board into feature planes, runs a forward pass through the policy head, masks illegal moves, and plays the highest-probability legal move.
+**Neural network AI** — a ResNet policy+value network trained in two stages: supervised pre-training on 500,000 real computer-vs-computer games from CGOS, followed by self-play where the network improves by playing against itself. At game time the AI encodes the board into feature planes, runs a forward pass through the policy head, masks illegal moves, and plays the highest-probability legal move.
 
 ---
 
