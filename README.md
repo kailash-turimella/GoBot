@@ -40,10 +40,11 @@ GoBot/
 │       ├── supervised.py       Pre-train on SGF game dataset
 │       ├── self_play.py        Generate self-play games → replay buffer
 │       ├── train.py            Fine-tune on replay buffer
-│       └── eval.py             Round-robin tournament between checkpoints
-├── data/
-│   ├── README.md               Dataset source and setup instructions
-│   └── samples/                10 example SGF files
+│       ├── eval.py             Round-robin tournament between checkpoints
+│       └── data/
+│           ├── README.md       Dataset source and setup instructions
+│           ├── Games/          Downloaded CGOS archives (not tracked)
+│           └── *.sgf           10 example SGF files
 └── tests/                      pytest suite (52 tests)
 ```
 
@@ -85,7 +86,7 @@ Both heads share the ResNet trunk so the network simultaneously learns to evalua
 
 **Stage 1 — Supervised pre-training (`training/supervised.py`)**
 
-The network is trained on real games from CGOS (see `data/README.md`). For each position in each game it learns:
+The network is trained on real games from CGOS (see `AI/training/data/README.md`). For each position in each game it learns:
 - **Policy**: predict which move was actually played (cross-entropy loss)
 - **Value**: predict who won the game (MSE loss)
 
@@ -93,7 +94,7 @@ The network is trained on real games from CGOS (see `data/README.md`). For each 
 
 **Stage 2 — Self-play (`training/self_play.py`)**
 
-The network plays games against itself, sampling moves from the policy head with temperature (exploratory for the first 30 moves, near-greedy after). Each position is labelled with the actual game outcome. These games are saved to `data/replay_buffer.npz`.
+The network plays games against itself, sampling moves from the policy head with temperature (exploratory for the first 30 moves, near-greedy after). Each position is labelled with the actual game outcome. These games are saved to `AI/training/data/replay_buffer.npz`.
 
 **Stage 3 — Fine-tuning (`training/train.py`)**
 
@@ -119,10 +120,10 @@ No search — single forward pass, ~5ms per move.
 
 ### Get the data
 
-Download 9×9 game archives from **http://www.yss-aya.com/cgos/**, place them in `data/Games/`, and extract:
+Download 9×9 game archives from **http://www.yss-aya.com/cgos/**, place them in `AI/training/data/Games/`, and extract:
 
 ```bash
-cd data/Games
+cd AI/training/data/Games
 for f in *.tar.bz2; do tar -xjf "$f"; done
 ```
 
@@ -130,7 +131,7 @@ for f in *.tar.bz2; do tar -xjf "$f"; done
 
 ```bash
 # Quick start (50k games, ~30 min on M1)
-python -m AI.training.supervised --max-games 50000 --epochs 20 --device mps --promote
+python -m AI.training.supervised --games AI/training/data/Games/ --max-games 50000 --epochs 20 --device mps --promote
 
 # Full 500k game run in chunks (automated)
 bash train_500k.sh
@@ -143,7 +144,7 @@ bash train_500k.sh
 python -m AI.training.self_play --games 500 --sims 0 --model AI/models/v3.pth --device mps
 
 # Fine-tune on self-play data
-python -m AI.training.train --buffer data/replay_buffer.npz --model AI/models/v3.pth --epochs 10 --device mps
+python -m AI.training.train --buffer AI/training/data/replay_buffer.npz --model AI/models/v3.pth --epochs 10 --device mps
 
 # Run tournament to find the best checkpoint
 python -m AI.training.eval --folder AI/models/ --games 20 --device cpu --promote v4

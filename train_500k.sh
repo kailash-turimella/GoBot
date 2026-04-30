@@ -7,7 +7,7 @@ set -e
 cd "$(dirname "$0")"
 source venv/bin/activate
 
-GAMES_DIR="data/Games/"
+GAMES_DIR="AI/training/data/Games/"
 MODELS_DIR="AI/models"
 DEVICE="mps"
 CHUNK=40000

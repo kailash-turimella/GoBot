@@ -3,7 +3,7 @@ self_play.py — Generate self-play games using network-guided PUCT MCTS.
 
 Run after supervised.py has produced models/best_model.pth.
 Each game yields (state_planes, mcts_probs, outcome) triples that are
-appended to data/replay_buffer.npz and consumed by train.py.
+appended to AI/training/data/replay_buffer.npz and consumed by train.py.
 
 MCTS uses the PUCT formula:
     score(child) = Q(child) + c_puct · P(child) · √N(parent) / (1 + N(child))
@@ -443,7 +443,7 @@ def main() -> None:
     parser.add_argument("--sims",   type=int,   default=400,
                         help="MCTS simulations per move (0 = fast policy-only mode)")
     parser.add_argument("--model",  type=str,   default="AI/models/v1.pth")
-    parser.add_argument("--buffer", type=str,   default="data/replay_buffer.npz")
+    parser.add_argument("--buffer", type=str,   default="AI/training/data/replay_buffer.npz")
     parser.add_argument("--device", type=str,   default="cpu")
     args = parser.parse_args()
 

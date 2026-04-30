@@ -2,16 +2,16 @@
 supervised.py — Pre-train GoNetwork on a dataset of SGF game files.
 
 Step 1 of the training pipeline:
-    python -m training.supervised --games data/games/ --epochs 20 --promote
+    python -m training.supervised --games AI/training/data/Games/ --epochs 20 --promote
     python -m training.self_play  --games 100 --sims 400
     python -m training.train      --epochs 10
     python -m training.eval       --candidate models/model_v10.pth
 
-Put .sgf files anywhere under data/games/. Only 9×9 games are used.
+Put .sgf files anywhere under AI/training/data/Games/. Only 9×9 games are used.
 Resigns and unknown results are excluded.
 
 Usage:
-    python -m training.supervised --games data/games/ --epochs 20 --promote
+    python -m training.supervised --games AI/training/data/Games/ --epochs 20 --promote
 """
 
 from __future__ import annotations
@@ -247,7 +247,7 @@ def train_supervised(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Supervised pre-training on SGF games")
-    parser.add_argument("--games",     type=str,   default="data/Games/")
+    parser.add_argument("--games",     type=str,   default="AI/training/data/Games/")
     parser.add_argument("--max-games", type=int,   default=None,
                         help="Number of SGF files to load in this chunk")
     parser.add_argument("--offset",    type=int,   default=0,

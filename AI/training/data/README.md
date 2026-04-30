@@ -15,20 +15,20 @@ The monthly archives are listed under the 9×9 section. Each archive is a `.tar.
 ## Setup
 
 1. Download the monthly archives from the CGOS link above
-2. Place the `.tar.bz2` files in `data/Games/`
+2. Place the `.tar.bz2` files in `AI/training/data/Games/`
 3. Extract them:
    ```bash
-   cd data/Games
+   cd AI/training/data/Games
    for f in *.tar.bz2; do tar -xjf "$f"; done
    ```
 4. Run supervised training:
    ```bash
-   python -m AI.training.supervised --games data/Games/ --max-games 50000 --epochs 20 --device mps --promote
+   python -m AI.training.supervised --games AI/training/data/Games/ --max-games 50000 --epochs 20 --device mps --promote
    ```
 
 ## Samples
 
-The `samples/` folder contains 10 example SGF files so you can inspect the format without downloading the full dataset.
+This folder contains 10 example SGF files so you can inspect the format without downloading the full dataset.
 
 Each file is a standard SGF record. The training parser handles:
 - Board size validation (`SZ[9]` only)
