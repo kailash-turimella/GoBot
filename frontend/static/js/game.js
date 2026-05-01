@@ -25,6 +25,8 @@ const STONE_R     = CELL * 0.44;
 
 // Star-point (hoshi) positions for a 9×9 board
 const STAR_POINTS = [[2,2],[2,6],[4,4],[6,2],[6,6]];
+const COL_LABELS  = ['A','B','C','D','E','F','G','H','J']; // I skipped (standard Go)
+const ROW_LABELS  = ['9','8','7','6','5','4','3','2','1']; // top→bottom = 9→1
 
 let gameState = null;
 let canvas, ctx;
@@ -186,6 +188,27 @@ function drawBoard() {
     ctx.beginPath();
     ctx.arc(x, y, 3.5, 0, 2 * Math.PI);
     ctx.fill();
+  }
+
+  // Coordinate labels
+  ctx.fillStyle = '#3a2a0a';
+  ctx.font      = 'bold 13px sans-serif';
+
+  // Column labels — top and bottom
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  for (let c = 0; c < BOARD_SIZE; c++) {
+    const x = MARGIN + c * CELL;
+    ctx.fillText(COL_LABELS[c], x, MARGIN / 2);
+    ctx.fillText(COL_LABELS[c], x, CANVAS_SIZE - MARGIN / 2);
+  }
+
+  // Row labels — left and right
+  ctx.textAlign = 'center';
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    const y = MARGIN + r * CELL;
+    ctx.fillText(ROW_LABELS[r], MARGIN / 2, y);
+    ctx.fillText(ROW_LABELS[r], CANVAS_SIZE - MARGIN / 2, y);
   }
 
   if (!gameState) return;
