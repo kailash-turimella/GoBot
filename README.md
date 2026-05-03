@@ -34,7 +34,8 @@ GoBot/
 │   ├── models/                 Saved checkpoints (.pth files)
 │   │   ├── v1.pth              Supervised baseline (48k games)
 │   │   ├── v2.pth              After self-play fine-tuning
-│   │   ├── v3.pth              After 500k supervised training (current)
+│   │   ├── v3.pth              After 500k supervised training
+│   │   ├── v4.pth              After 1.1M supervised training (current)
 │   │   └── trials/             All intermediate epoch snapshots
 │   └── training/
 │       ├── supervised.py       Pre-train on SGF game dataset
@@ -61,7 +62,7 @@ python app.py
 
 Open **http://127.0.0.1:5000** in your browser.
 
-The AI move button requires a trained model at `AI/models/v3.pth` (included). Without it the `/ai_move` route returns a `503`.
+The AI move button requires a trained model at `AI/models/v4.pth` (included). Without it the `/ai_move` route returns a `503`.
 
 ---
 
